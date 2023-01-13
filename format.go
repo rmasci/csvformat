@@ -45,6 +45,7 @@ type Grid struct {
 	Delimiter        string
 	Number           bool
 	OutDelimiter     string
+	Headline         string
 }
 
 type Excel struct {
@@ -107,13 +108,16 @@ func NewExcel() *Excel {
 // Render:
 // simple. Tab format with lines on top
 // plain. Text output no gridlines extra spaces in between
-//
 func (g *Grid) Gridout(text string) (string, error) {
 	var out string
 	//if g.Render == "text" {
 	//	//g.Render = "csv"
 	//	g.Render = "txt"
 	//}
+	if g.Headline != "" {
+		strings.TrimSpace(g.Headline)
+		text = fmt.Sprintf("%s\n%s", g.Headline, text)
+	}
 	txtRdr := strings.NewReader(text)
 	csvRdr := csv.NewReader(txtRdr)
 	csvRdr.Comma = []rune(g.Delimiter)[0]

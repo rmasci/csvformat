@@ -49,11 +49,14 @@ type Grid struct {
 }
 
 type Excel struct {
-	Header    string
-	FileName  string
-	Space     bool
-	Delimeter string
-	Sheet     string
+	Header             string
+	FileName           string
+	Space              bool
+	Delimeter          string
+	Sheet              string
+	FormatHeaderFooter excelize.FormatHeaderFooter
+	HeadStyle          excelize.Style
+	NormStyle          excelize.Style
 }
 
 // TimeStamp
@@ -99,7 +102,16 @@ func NewGrid() *Grid {
 // your own use might look like this
 // myexcek := nsres.Excel{Delimiter: "|"
 func NewExcel() *Excel {
-	e := Excel{FileName: "mysql", Header: "", Space: true, Delimeter: ",", Sheet: "Sheet1"}
+	e := Excel{
+		FileName:           "myexcel",
+		Header:             "",
+		Space:              true,
+		Delimeter:          ",",
+		Sheet:              "Sheet1",
+		FormatHeaderFooter: excelize.FormatHeaderFooter{FirstHeader: `&CCenter &"-,Bold"Bold&"-,Regular"HeaderU+000A&D`},
+		HeadStyle:          excelize.Style{Font: &excelize.Font{Bold: true}},
+		NormStyle:          excelize.Style{Font: &excelize.Font{Bold: false}},
+	}
 	return &e
 }
 
@@ -174,9 +186,7 @@ func (g *Grid) Gridout(text string) (string, error) {
 }
 
 func (excel *Excel) Excelout(text string, fname string) (string, error) {
-	if excel.Header != "" {
-		text = fmt.Sprintf("%s\n%s", excel.Header, text)
-	}
+
 	lines := strings.Split(strings.TrimSpace(text), "\n")
 	fmt.Printf("Len: %v\n", len(lines))
 	if excel.FileName == "" {
@@ -184,9 +194,23 @@ func (excel *Excel) Excelout(text string, fname string) (string, error) {
 	}
 	xlsx := excelize.NewFile()
 	xlsx.NewSheet(excel.Sheet)
+	xlsx.SetHeaderFooter(excel.Sheet, &excel.FormatHeaderFooter)
 	lineNumber := 0
 	/// This is each row
-	for _, row := range lines {
+	if excel.Header != "" {
+		lines = append([]string{excel.Header}, lines...)
+	}
+	fmt.Printf("%v\n%v\n%v\n%v\n", lines[0], lines[1], lines[2], lines[3])
+	hStyle, err := xlsx.NewStyle(&excel.HeadStyle)
+	if err != nil {
+		return "", err
+	}
+	nStyle, err := xlsx.NewStyle(&excel.NormStyle)
+	if err != nil {
+		return "", err
+	}
+	for I, row := range lines {
+		fmt.Println("-", row)
 		for i, cell := range strings.Split(row, excel.Delimeter) {
 			// each cell in row
 			if excel.Space {
@@ -197,6 +221,13 @@ func (excel *Excel) Excelout(text string, fname string) (string, error) {
 				continue
 			}
 			axis := fmt.Sprintf("%v%v", cntn, lineNumber)
+			fmt.Println("Axis", axis)
+			if I == 0 {
+				fmt.Println("Header")
+				xlsx.SetCellStyle(excel.Sheet, axis, axis, hStyle)
+			} else {
+				xlsx.SetCellStyle(excel.Sheet, axis, axis, nStyle)
+			}
 			xlsx.SetCellValue(excel.Sheet, axis, cell)
 		}
 		lineNumber++

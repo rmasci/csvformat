@@ -1,5 +1,3 @@
-MIT License
-
 Copyright 2023 Richard Masci
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

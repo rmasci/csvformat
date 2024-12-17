@@ -188,7 +188,7 @@ func (g *Grid) Gridout(text string) (string, error) {
 func (excel *Excel) Excelout(text string, fname string) (string, error) {
 
 	lines := strings.Split(strings.TrimSpace(text), "\n")
-	fmt.Printf("Len: %v\n", len(lines))
+	//fmt.Printf("Len: %v\n", len(lines))
 	if excel.FileName == "" {
 		return "", fmt.Errorf("must pass a file name to store the Excel in.\n")
 	}
@@ -200,7 +200,7 @@ func (excel *Excel) Excelout(text string, fname string) (string, error) {
 	if excel.Header != "" {
 		lines = append([]string{excel.Header}, lines...)
 	}
-	fmt.Printf("%v\n%v\n%v\n%v\n", lines[0], lines[1], lines[2], lines[3])
+	//fmt.Printf("%v\n%v\n%v\n%v\n", lines[0], lines[1], lines[2], lines[3])
 	hStyle, err := xlsx.NewStyle(&excel.HeadStyle)
 	if err != nil {
 		return "", err
@@ -210,7 +210,7 @@ func (excel *Excel) Excelout(text string, fname string) (string, error) {
 		return "", err
 	}
 	for I, row := range lines {
-		fmt.Println("-", row)
+		//fmt.Println("-", row)
 		for i, cell := range strings.Split(row, excel.Delimeter) {
 			// each cell in row
 			if excel.Space {
@@ -221,9 +221,9 @@ func (excel *Excel) Excelout(text string, fname string) (string, error) {
 				continue
 			}
 			axis := fmt.Sprintf("%v%v", cntn, lineNumber)
-			fmt.Println("Axis", axis)
+			//fmt.Println("Axis", axis)
 			if I == 0 {
-				fmt.Println("Header")
+				//fmt.Println("Header")
 				xlsx.SetCellStyle(excel.Sheet, axis, axis, hStyle)
 			} else {
 				xlsx.SetCellStyle(excel.Sheet, axis, axis, nStyle)
